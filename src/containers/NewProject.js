@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import {FormGroup, FormControl, ControlLabel} from "react-bootstrap";
 import LoaderButton from "../components/LoaderButton";
 import "./NewNote.css";
-import { API } from "aws-amplify";
+import { API, Auth } from "aws-amplify";
 
 export default class NewProject extends Component {
     constructor(props) {
@@ -11,8 +11,16 @@ export default class NewProject extends Component {
         this.state = {
             isLoading: null,
             name: "",
-            content: ""
+            content: "",
+            email: ""
         };
+    }
+
+
+    async componentDidMount() {
+        const e = await Auth.currentAuthenticatedUser();
+        this.setState({email: e.attributes.email});
+
     }
 
     validateForm() {
@@ -47,7 +55,7 @@ export default class NewProject extends Component {
             body: {
                 projectName : this.state.name,
                 description : this.state.content,
-                email : this.props.location.email
+                email : this.state.email
             }
         }
         return API.post("PMApp", "/createProject", toPass);
